@@ -1,6 +1,12 @@
 # redis-request
 
-I'm now using it to deal with the socket multi process problem
+I'm now using it to deal with the socket multi process problem.
+
+## Install
+
+```javascript
+npm install redis-request
+```
 
 ## How to use
 
