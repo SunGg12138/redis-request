@@ -1,3 +1,11 @@
+# redis-request
+
+I'm now using it to deal with the socket multi process problem
+
+## How to use
+
+```javascript
+// kk.js
 function kk(data, fn){
     this.publish({ type: 'kk', data }, fn);
 }
@@ -28,3 +36,16 @@ kk.response = function(message){
     }
 }
 module.exports = kk;
+
+// extends
+const Redis = require('ioredis');
+const RedisRequest = require('../index');
+const redisRequest = RedisRequest(new Redis(), new Redis());
+redisRequest.extends({ kk: require('./kk') });
+
+// send message
+redisRequest.kk(100, function(err, data){
+    // data is result of all process
+});
+
+```

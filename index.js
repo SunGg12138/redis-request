@@ -34,7 +34,7 @@ function redisRequest(sub, pub, prefix){
 
     this.requests = {};
 
-    this.reservedWords = [ 'resChannel', 'reqChannel', 'sub', 'pub', 'requests', 'extends', 'reservedWords' ];
+    this.reservedWords = [ 'resChannel', 'reqChannel', 'sub', 'pub', 'requests', 'extends', 'publish', 'onrequest', 'onresponse'];
 }
 
 redisRequest.prototype.publish = publish;
@@ -49,7 +49,7 @@ redisRequest.prototype.extends = function(objs){
     });
     for (let key in objs) {
         this[key] = objs[key];
-        this[key].send.bind(this);
+        this[key].bind(this);
     }
 };
 
