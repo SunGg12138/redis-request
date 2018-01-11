@@ -1,5 +1,5 @@
 function kk(data, fn){
-    this.publish({ type: 'kk', data }, fn);
+    kk.redisRequest.publish({ type: 'kk.cc', data }, fn);
 }
 kk.request = function(message){
     // The process accepts the request and returns the result after processing
@@ -7,14 +7,14 @@ kk.request = function(message){
     let random = Math.random();
 
     // Publish the process's result
-    this.pub.publish(this.resChannel, JSON.stringify({
-        type: 'kk',
+    kk.redisRequest.pub.publish(kk.redisRequest.resChannel, JSON.stringify({
+        type: 'kk.cc',
         requestId: message.requestId,
-        data: 'response kk: ' + random * message.data
+        data: 'response kk.cc: ' + random * message.data
     }));
 }
 kk.response = function(message){
-    let request = this.requests[message.requestId];
+    let request = kk.redisRequest.requests[message.requestId];
     request.msgCount++;
 
     // Collect the results of all processes
@@ -24,7 +24,7 @@ kk.response = function(message){
     if (request.msgCount === request.numsub) {
         request.callback && request.callback(null, request.data)
         clearTimeout(request.timeout);
-        delete this.requests[message.requestId];
+        delete kk.redisRequest.requests[message.requestId];
     }
 }
 module.exports = kk;
