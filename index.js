@@ -1,5 +1,7 @@
 'use strict';
-const publish = require('./lib/publish');
+const send = require('./lib/send');
+const request = require('./lib/request');
+const response = require('./lib/response');
 const onrequest = require('./lib/onrequest');
 const onresponse = require('./lib/onresponse');
 
@@ -36,27 +38,33 @@ function redisRequest(sub, pub, prefix){
     this.requests = {};
 }
 
-redisRequest.prototype.publish = publish;
+redisRequest.prototype.send = send;
+redisRequest.prototype.request = request;
+redisRequest.prototype.response = response;
 redisRequest.prototype.onrequest = onrequest;
 redisRequest.prototype.onresponse = onresponse;
-redisRequest.prototype.extends = function(obj, extend){
+redisRequest.prototype.extends = function(obj, extend, prefix){
     if (!extend) {
         extend = obj;
         obj = this;
+        prefix = '';
     }
     if (typeof extend === 'function') {
         let name = extend.name;
         if (!name) return;
         obj[name] = extend;
-        obj[name].redisRequest = this;
+        obj[name].__proto__ = this;
+        obj[name].type = prefix + name;
     } else if (typeof extend === 'object') {
         for (let key in extend) {
             if (typeof extend[key] === 'function') {
                 obj[key] = extend[key];
-                obj[key].redisRequest = this;
+                obj[key].__proto__ = this;
+                obj[key].type = prefix + '.' + key;
+                obj[key].onmessage && (obj[key].onmessage.type = prefix + '.' + key);
             } else if (typeof extend[key] === 'object') {
                 obj[key] = {};
-                this.extends(obj[key], extend[key]);
+                this.extends(obj[key], extend[key], prefix? prefix + '.' + key : prefix + key);
             }
         }
     }

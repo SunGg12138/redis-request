@@ -1,7 +1,8 @@
-function simple(data, fn){
-    this.pub.publish(this.reqChannel, JSON.stringify({ type: 'simple', data }));
+function simple(data){
+    simple.send({ type: 'simple', data });
+    console.log(simple.type)
 }
-simple.request = function(message){
+simple.onmessage = function(message){
     let random = Math.random();
     console.log('request simple: ' + random * message.data);
 }

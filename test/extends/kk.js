@@ -1,20 +1,19 @@
 function kk(data, fn){
-    kk.redisRequest.publish({ type: 'kk.cc', data }, fn);
+    kk.request({ type: kk.type, data }, fn);
 }
-kk.request = function(message){
+kk.onmessage = function(message){
     // The process accepts the request and returns the result after processing
 
     let random = Math.random();
 
-    // Publish the process's result
-    kk.redisRequest.pub.publish(kk.redisRequest.resChannel, JSON.stringify({
-        type: 'kk.cc',
+    kk.response({
+        type: kk.type,
         requestId: message.requestId,
-        data: 'response kk.cc: ' + random * message.data
-    }));
+        data: 'response ' + kk.type + ': ' + random * message.data
+    });
 }
-kk.response = function(message){
-    let request = kk.redisRequest.requests[message.requestId];
+kk.oncollect = function(message){
+    let request = kk.requests[message.requestId];
     request.msgCount++;
 
     // Collect the results of all processes
@@ -24,7 +23,7 @@ kk.response = function(message){
     if (request.msgCount === request.numsub) {
         request.callback && request.callback(null, request.data)
         clearTimeout(request.timeout);
-        delete kk.redisRequest.requests[message.requestId];
+        delete kk.requests[message.requestId];
     }
 }
 module.exports = kk;
