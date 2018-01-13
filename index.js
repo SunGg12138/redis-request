@@ -4,6 +4,7 @@ const request = require('./lib/request');
 const response = require('./lib/response');
 const onrequest = require('./lib/onrequest');
 const onresponse = require('./lib/onresponse');
+const Extends = require('./lib/extends');
 
 function redisRequest(sub, pub, prefix){
 
@@ -11,14 +12,14 @@ function redisRequest(sub, pub, prefix){
     this.resChannel = prefix + 'res#';
 
     sub.subscribe([this.reqChannel, this.resChannel], function(err){
-        if (err) console.log(err);
-    });
+        if (err) this.onerror(err);
+    }.bind(this));
 
     sub.on('message', function(channel, message){
         try {
             message = JSON.parse(message);
         } catch(error) {
-            console.log(error);
+            this.onerror(error);
             return;
         }
         channel = channel.split('#');
@@ -29,8 +30,8 @@ function redisRequest(sub, pub, prefix){
         }
     }.bind(this));
 
-    sub.on('error', console.log);
-    pub.on('error', console.log);
+    sub.on('error', this.onerror);
+    pub.on('error', this.onerror);
 
     this.sub = sub;
     this.pub = pub;
@@ -43,32 +44,12 @@ redisRequest.prototype.request = request;
 redisRequest.prototype.response = response;
 redisRequest.prototype.onrequest = onrequest;
 redisRequest.prototype.onresponse = onresponse;
-redisRequest.prototype.extends = function(obj, extend, prefix){
-    if (!extend) {
-        extend = obj;
-        obj = this;
-        prefix = '';
-    }
-    if (typeof extend === 'function') {
-        let name = extend.name;
-        if (!name) return;
-        obj[name] = extend;
-        obj[name].__proto__ = this;
-        obj[name].type = prefix + name;
-    } else if (typeof extend === 'object') {
-        for (let key in extend) {
-            if (typeof extend[key] === 'function') {
-                obj[key] = extend[key];
-                obj[key].__proto__ = this;
-                obj[key].type = prefix + '.' + key;
-                obj[key].onmessage && (obj[key].onmessage.type = prefix + '.' + key);
-            } else if (typeof extend[key] === 'object') {
-                obj[key] = {};
-                this.extends(obj[key], extend[key], prefix? prefix + '.' + key : prefix + key);
-            }
-        }
-    }
+redisRequest.prototype.extends = Extends;
+redisRequest.prototype.disconnect = function(){
+    this.sub.disconnect();
+    this.pub.disconnect();
 };
+redisRequest.prototype.onerror = function(error){};
 
 module.exports = function(sub, pub, prefix){
     prefix = prefix || 'redis-request#';

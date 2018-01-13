@@ -14,5 +14,10 @@
   "license": "ISC",
   "dependencies": {
     "uid2": "0.0.3"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "ioredis": "^3.2.2",
+    "socket.io": "^2.0.4"
   }
 }
