@@ -12,9 +12,9 @@ npm install redis-request
 
 The example for socket.io multi process.
 
-1. [socket.io clients](./test/entends/clients.js)
+1. [socket.io clients](https://github.com/SunGg12138/redis-request/blob/master/test/extends/clients.js)
 
-2. [socket.io broadcast](./test/entends/broadcast.js)
+2. [socket.io broadcast](https://github.com/SunGg12138/redis-request/blob/master/test/extends/broadcast.js)
 
 ## Test
 
