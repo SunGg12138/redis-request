@@ -45,6 +45,23 @@ redisRequest.prototype.response = response;
 redisRequest.prototype.onrequest = onrequest;
 redisRequest.prototype.onresponse = onresponse;
 redisRequest.prototype.extends = Extends;
+redisRequest.prototype.isReady = function(requestId){
+    let request = this.requests[requestId];
+    if (!request) return true;
+    if (request.msgCount === request.numsub) {
+        clearTimeout(request.timeout);
+        delete this.requests[requestId];
+        return true;
+    } else {
+        return false;
+    }
+};
+redisRequest.prototype.clearRequest = function(requestId){
+    let request = this.requests[requestId];
+    if (!request) return;
+    clearTimeout(request.timeout);
+    delete this.requests[requestId];
+};
 redisRequest.prototype.disconnect = function(){
     this.sub.disconnect();
     this.pub.disconnect();

@@ -1,5 +1,5 @@
-function clients(room, fn){
-    clients.request({ type: clients.type, room }, fn);
+function clients(room, callback){
+    clients.request({ type: clients.type, room }, callback);
 }
 clients.onmessage = function(message){
     io.to(message.room).clients(function(err, clientIds){
@@ -14,18 +14,11 @@ clients.onmessage = function(message){
         }
     });
 }
-clients.oncollect = function(message){
-    let request = clients.requests[message.requestId];
-    request.msgCount++;
-
-    
+clients.oncollect = function(message, request){
     request.data = request.data || [];
     request.data = request.data.concat(message.data);
-
-    if (request.msgCount === request.numsub) {
-        request.callback && request.callback(null, request.data)
-        clearTimeout(request.timeout);
-        delete clients.requests[message.requestId];
+    if (clients.isReady(message.requestId)) {
+        request.callback && request.callback(null, request.data);
     }
 }
 module.exports = clients;
