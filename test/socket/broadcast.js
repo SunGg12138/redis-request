@@ -37,4 +37,7 @@ server.listen(port, function(){
     socket.on('disconnect', function(){
         process.exit(0);
     });
+    setTimeout(function(){
+        process.exit(0);
+    }, 2000);
 });

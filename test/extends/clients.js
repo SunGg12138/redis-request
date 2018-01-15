@@ -17,7 +17,7 @@ clients.onmessage = function(message){
 clients.oncollect = function(message, request){
     request.data = request.data || [];
     request.data = request.data.concat(message.data);
-    if (clients.isReady(message.requestId)) {
+    if (clients.isAll(message.requestId)) {
         request.callback && request.callback(null, request.data);
     }
 }

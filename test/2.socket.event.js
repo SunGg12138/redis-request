@@ -61,4 +61,30 @@ describe('socket.io event', function(){
             }
         }
     });
+
+    it('socket emit by socketId', function(done){
+        let count = 0;
+        let exitCount = 0;
+        for (let i = 0; i < 4; i++) {
+            let child = spawn('node', [
+                __dirname + '/socket/emit.js',
+                i
+            ]);
+            child.stdout.on('data', function(data){
+                if (JSON.parse(data.toString()).message === 'I get it.') {
+                    count++;
+                    setTimeout(function(){
+                        expect(count === 1).to.be.ok;
+                        done();
+                    }, 500);
+                }
+            });
+            child.stderr.on('data', function(data){
+                console.log(data.toString());
+            });
+            child.on('exit', function(){
+                exitCount++;
+            });
+        }
+    });
 });
