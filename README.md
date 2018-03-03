@@ -16,6 +16,8 @@ The example for socket.io multi process.
 
 2. [socket.io broadcast](https://github.com/SunGg12138/redis-request/blob/master/test/extends/broadcast.js)
 
+3. [socket.io emit](https://github.com/SunGg12138/redis-request/blob/master/test/extends/broadcast.js)
+
 ## Test
 
 ```javascript

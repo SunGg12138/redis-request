@@ -6,11 +6,8 @@ clients.onmessage = function(message){
         if (err) {
             console.log(err);
         } else {
-            clients.response({
-                type: clients.type,
-                requestId: message.requestId,
-                data: clientIds
-            });
+            // response old message and new message
+            clients.response(message, { data: clientIds });
         }
     });
 }
