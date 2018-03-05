@@ -28,6 +28,31 @@ describe('socket.io event', function(){
         }
     });
 
+    it('socket clientsAsync event', function(done){
+        let exitCount = 0;
+        for (let i = 0; i < 4; i++) {
+            let child = spawn('node', [
+                __dirname + '/socket/clientsAsync.js',
+                i
+            ]);
+            child.stdout.on('data', function(data){
+                expect(JSON.parse(data.toString()).length === 4).to.be.ok;
+                let timer = setInterval(function(){
+                    if (exitCount === 4) {
+                        clearInterval(timer);
+                        done();
+                    }
+                });
+            });
+            child.stderr.on('data', function(data){
+                console.log(data.toString());
+            });
+            child.on('exit', function(){
+                exitCount++;
+            });
+        }
+    });
+
     it('socket broadcast event', function(done){
         let count = 0;
         let exitCount = 0;

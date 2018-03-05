@@ -1,6 +1,7 @@
 'use strict';
 const send = require('./lib/send');
 const request = require('./lib/request');
+const requestAsync = require('./lib/requestAsync');
 const response = require('./lib/response');
 const onrequest = require('./lib/onrequest');
 const onresponse = require('./lib/onresponse');
@@ -41,6 +42,7 @@ function redisRequest(sub, pub, prefix){
 
 redisRequest.prototype.send = send;
 redisRequest.prototype.request = request;
+redisRequest.prototype.requestAsync = requestAsync;
 redisRequest.prototype.response = response;
 redisRequest.prototype.onrequest = onrequest;
 redisRequest.prototype.onresponse = onresponse;
