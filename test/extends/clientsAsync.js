@@ -15,7 +15,7 @@ clients.oncollect = function(message, request){
     request.data = request.data || [];
     request.data = request.data.concat(message.data);
     if (clients.isAll(message.requestId)) {
-        request.resolve(request.data)
+        request.callback && request.callback(null, request.data);
     }
 }
 module.exports = clients;

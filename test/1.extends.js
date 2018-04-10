@@ -2,8 +2,8 @@ const Redis = require('ioredis');
 const RedisRequest = require('../index');
 const expect = require('chai').expect;
 
-describe('Extend deep object', function(){
-    it('Extend Only one function', function(){
+describe('使用extends来扩展redis-request的方法', function(){
+    it('扩展的参数是个方法', function(){
         const redisRequest = RedisRequest(new Redis(), new Redis());
         redisRequest.extends(function tt(){});
         expect(
@@ -12,8 +12,7 @@ describe('Extend deep object', function(){
         ).to.be.ok;
         redisRequest.disconnect();
     });
-
-    it('Extend an object', function(){
+    it('扩展的参数是个对象', function(){
         const redisRequest = RedisRequest(new Redis(), new Redis());
         redisRequest.extends({
             aa: function(){},
@@ -27,8 +26,7 @@ describe('Extend deep object', function(){
         ).to.be.ok;
         redisRequest.disconnect();
     });
-
-    it('Extend deep an object', function(){
+    it('扩展的参数是个深层次的对象', function(){
         const redisRequest = RedisRequest(new Redis(), new Redis());
         redisRequest.extends({
             aa: function(){},

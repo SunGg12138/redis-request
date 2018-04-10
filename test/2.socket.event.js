@@ -1,9 +1,8 @@
 const expect = require('chai').expect;
 const spawn = require('child_process').spawn;
-describe('socket.io event', function(){
+describe('为多进程的socket.io扩展事件', function(){
     this.timeout(5000);
-
-    it('socket clients event', function(done){
+    it('扩展clients事件，来获取指定房间的socketId', function(done){
         let exitCount = 0;
         for (let i = 0; i < 4; i++) {
             let child = spawn('node', [
@@ -11,13 +10,17 @@ describe('socket.io event', function(){
                 i
             ]);
             child.stdout.on('data', function(data){
-                expect(JSON.parse(data.toString()).length === 4).to.be.ok;
-                let timer = setInterval(function(){
-                    if (exitCount === 4) {
-                        clearInterval(timer);
-                        done();
-                    }
-                });
+                try {
+                    expect(JSON.parse(data.toString()).length === 4).to.be.ok;
+                    let timer = setInterval(function(){
+                        if (exitCount === 4) {
+                            clearInterval(timer);
+                            done();
+                        }
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
             });
             child.stderr.on('data', function(data){
                 console.log(data.toString());
@@ -27,8 +30,7 @@ describe('socket.io event', function(){
             });
         }
     });
-
-    it('socket clientsAsync event', function(done){
+    it('扩展clientsAsync事件，来异步获取指定房间的socketId', function(done){
         let exitCount = 0;
         for (let i = 0; i < 4; i++) {
             let child = spawn('node', [
@@ -36,13 +38,17 @@ describe('socket.io event', function(){
                 i
             ]);
             child.stdout.on('data', function(data){
-                expect(JSON.parse(data.toString()).length === 4).to.be.ok;
-                let timer = setInterval(function(){
-                    if (exitCount === 4) {
-                        clearInterval(timer);
-                        done();
-                    }
-                });
+                try {
+                    expect(JSON.parse(data.toString()).length === 4).to.be.ok;
+                    let timer = setInterval(function(){
+                        if (exitCount === 4) {
+                            clearInterval(timer);
+                            done();
+                        }
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
             });
             child.stderr.on('data', function(data){
                 console.log(data.toString());
@@ -52,8 +58,7 @@ describe('socket.io event', function(){
             });
         }
     });
-
-    it('socket broadcast event', function(done){
+    it('扩展broadcast事件，来广播事件', function(done){
         let count = 0;
         let exitCount = 0;
         for (let i = 0; i < 4; i++) {
@@ -62,9 +67,13 @@ describe('socket.io event', function(){
                 i
             ]);
             child.stdout.on('data', function(data){
-                if (JSON.parse(data.toString()).message === 'I get it.') {
-                    count++;
-                    test();
+                try {
+                    if (JSON.parse(data.toString()).message === 'I get it.') {
+                        count++;
+                        test();
+                    }
+                } catch (error) {
+                    console.log(error);
                 }
             });
             child.stderr.on('data', function(data){
@@ -86,8 +95,7 @@ describe('socket.io event', function(){
             }
         }
     });
-
-    it('socket emit by socketId', function(done){
+    it('扩展emit事件，来指定socketId触发事件', function(done){
         let count = 0;
         let exitCount = 0;
         for (let i = 0; i < 4; i++) {
@@ -96,12 +104,16 @@ describe('socket.io event', function(){
                 i
             ]);
             child.stdout.on('data', function(data){
-                if (JSON.parse(data.toString()).message === 'I get it.') {
-                    count++;
-                    setTimeout(function(){
-                        expect(count === 1).to.be.ok;
-                        done();
-                    }, 500);
+                try {
+                    if (JSON.parse(data.toString()).message === 'I get it.') {
+                        count++;
+                        setTimeout(function(){
+                            expect(count === 1).to.be.ok;
+                            done();
+                        }, 500);
+                    }
+                } catch (error) {
+                    console.log(error);
                 }
             });
             child.stderr.on('data', function(data){

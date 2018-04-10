@@ -70,6 +70,13 @@ redisRequest.prototype.disconnect = function(){
 };
 redisRequest.prototype.onerror = function(error){};
 
+/**
+ * 创建redisRequest
+ * 
+ * @param {*} sub 订阅的redis
+ * @param {*} pub 发布的redis
+ * @param {*} prefix 订阅和发布事件的前缀，默认为redis-request#
+ */
 module.exports = function(sub, pub, prefix){
     prefix = prefix || 'redis-request#';
     if (!sub || !pub) throw new Error('The sub and the pub is required');
