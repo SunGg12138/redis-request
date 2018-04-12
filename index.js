@@ -9,35 +9,37 @@ const Extends = require('./lib/extends');
 
 function redisRequest(sub, pub, prefix){
 
-    this.reqChannel = prefix + 'req#';
-    this.resChannel = prefix + 'res#';
+  // 设置请求和响应的redis频道前缀
+  this.reqChannel = prefix + 'req#';
+  this.resChannel = prefix + 'res#';
 
-    sub.subscribe([this.reqChannel, this.resChannel], function(err){
-        if (err) this.onerror(err);
-    }.bind(this));
+  // 订阅请求和响应的频道
+  sub.subscribe([this.reqChannel, this.resChannel], function(err){
+    if (err) this.onerror(err);
+  }.bind(this));
 
-    sub.on('message', function(channel, message){
-        try {
-            message = JSON.parse(message);
-        } catch(error) {
-            this.onerror(error);
-            return;
-        }
-        channel = channel.split('#');
-        if (channel[1] === 'req') {
-            this.onrequest(message);
-        } else if (channel[1] === 'res'){
-            this.onresponse(message);
-        }
-    }.bind(this));
+  sub.on('message', function(channel, message){
+    try {
+      message = JSON.parse(message);
+    } catch(error) {
+      this.onerror(error);
+      return;
+    }
+    channel = channel.split('#');
+    if (channel[1] === 'req') {
+      this.onrequest(message);
+    } else if (channel[1] === 'res'){
+      this.onresponse(message);
+    }
+  }.bind(this));
 
-    sub.on('error', this.onerror);
-    pub.on('error', this.onerror);
+  sub.on('error', this.onerror);
+  pub.on('error', this.onerror);
 
-    this.sub = sub;
-    this.pub = pub;
+  this.sub = sub;
+  this.pub = pub;
 
-    this.requests = {};
+  this.requests = {};
 }
 
 redisRequest.prototype.send = send;
@@ -47,28 +49,38 @@ redisRequest.prototype.response = response;
 redisRequest.prototype.onrequest = onrequest;
 redisRequest.prototype.onresponse = onresponse;
 redisRequest.prototype.extends = Extends;
+
+// 在oncollect时判断是否所有进程都响应了请求
 redisRequest.prototype.isAll = function(requestId){
-    let request = this.requests[requestId];
-    if (!request) return true;
-    if (request.msgCount === request.numsub) {
-        clearTimeout(request.timeout);
-        delete this.requests[requestId];
-        return true;
-    } else {
-        return false;
-    }
-};
-redisRequest.prototype.clearRequest = function(requestId){
-    let request = this.requests[requestId];
-    if (!request) return;
+  let request = this.requests[requestId];
+  if (!request) return true;
+  if (request.msgCount === request.numsub) {
     clearTimeout(request.timeout);
     delete this.requests[requestId];
+    return true;
+  } else {
+    return false;
+  }
 };
-redisRequest.prototype.disconnect = function(){
-    this.sub.disconnect();
-    this.pub.disconnect();
+
+// 清理requestId对应的请求ID和计时器
+redisRequest.prototype.clearRequest = function(requestId){
+  let request = this.requests[requestId];
+  if (!request) return;
+  clearTimeout(request.timeout);
+  delete this.requests[requestId];
 };
-redisRequest.prototype.onerror = function(error){};
+
+// 断开redis连接
+redisRequest.prototype.disconnect = function(requestId){
+  this.sub.disconnect();
+  this.pub.disconnect();
+};
+
+// 错误监听
+redisRequest.prototype.onerror = function(error){
+  throw error;
+};
 
 /**
  * 创建redisRequest
@@ -78,7 +90,7 @@ redisRequest.prototype.onerror = function(error){};
  * @param {*} prefix 订阅和发布事件的前缀，默认为redis-request#
  */
 module.exports = function(sub, pub, prefix){
-    prefix = prefix || 'redis-request#';
-    if (!sub || !pub) throw new Error('The sub and the pub is required');
-    return new redisRequest(sub, pub, prefix);
+  prefix = prefix || 'redis-request#';
+  if (!sub || !pub) throw new Error('The sub and the pub is required');
+  return new redisRequest(sub, pub, prefix);
 }
